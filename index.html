@@ -1,0 +1,178 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+	<meta charset="UTF-8" />
+	<title>MY PORTFOLIO</title>
+    <script type="text/javascript" src="js/phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(1086, 610, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var travelRight = true;
+var lengthCanvas = 0;
+var puPicked = false;
+
+function preload() {
+/*game.load.image('bg', 'assets/bg.png');
+game.load.image('building-bg', 'assets/building-bg.png');
+game.load.image('building', 'assets/building.png');
+
+game.load.image('ground', 'assets/ground.png');*/
+game.load.image('long-background', 'assets/test.png');
+game.load.spritesheet('walk', 'assets/character-walk.png', 238, 238);
+game.load.image('animation', 'assets/animation.png');
+}
+
+function create() {
+	game.physics.startSystem(Phaser.Physics.ARCADE);
+	/*game.add.sprite(0,0, 'bg');
+	game.add.sprite(0,0, 'building-bg');
+	game.add.sprite(0,0, 'building');
+	game.add.sprite(0,0, 'animation');
+	game.add.sprite(0,0, 'ground');*/
+	//game.add.sprite(0,0, 'long-background');
+	
+	
+
+	platforms = game.add.group();
+	platforms.enableBody = true;
+
+	var ground = platforms.create(0, game.world.height -150, 'long-background');
+	ground.body.immovable = true;
+
+	long_BG = game.add.sprite(-10, 0, 'long-background');
+	player = game.add.sprite(30, game.world.height -600, 'walk');
+	animationPU = game.add.sprite(500, 300, 'animation');
+	//animationPU = new powerUp (player, animationPowerUp);
+	game.physics.arcade.enable(player);
+	game.physics.arcade.enable(long_BG);
+	game.physics.arcade.enable(animationPU);
+	
+	
+
+	player.body.bounce.y = 0.1;
+	player.body.gravity.y = 400;
+	player.body.collideWorldBounds = true;
+	player.animations.add('left', [8,7,6,5,4,3,2,1,0], 10, true);
+	player.animations.add('right', [11,12,13,14,15,16,17,18,19], 10, true);
+ 
+	cursors = game.input.keyboard.createCursorKeys();
+
+
+}
+
+
+
+function update() {
+	game.physics.arcade.collide(player, platforms);
+	
+	player.body.velocity.x = 0;
+	long_BG.body.velocity.x = 0;
+	animationPU.body.velocity.x = 0;
+
+	game.physics.arcade.overlap(player, animationPU, powerUp.collectPU, null, this);
+
+	
+	if (cursors.left.isDown && !(cursors.right.isDown))
+	{
+		if(lengthCanvas >= 0)
+		{
+			long_BG.body.velocity.x = 350;
+			animationPU.body.velocity.x = 350;
+			player.body.velocity.x = -20;
+			bodyAnimate('left');
+			lengthCanvas -= 6.8;
+		}
+		else
+		{
+			player.body.velocity.x = -300;
+			bodyAnimate('left');	
+		}
+		travelRight = false;
+	}
+	else if (cursors.right.isDown && !(cursors.left.isDown))
+	{
+		if(lengthCanvas < 8111)
+		{
+			long_BG.body.velocity.x = -350;
+			animationPU.body.velocity.x = -350;
+			player.body.velocity.x = 20;
+			bodyAnimate('right');	
+			lengthCanvas += 6.8;
+		}
+		else
+		{
+			player.body.velocity.x = 300;
+			bodyAnimate('right');	
+		}
+		travelRight = true;
+	}
+	else
+	{
+		player.animations.stop();
+		if (travelRight)
+		{
+			player.frame = 10;
+		}
+		else
+		{
+			player.frame = 9;
+		}
+	}
+
+	if(cursors.up.isDown && player.body.touching.down)
+	{
+		player.body.velocity.y = -300;
+		player.animations.stop();
+	}
+
+}
+
+function bodyAnimate(direction)
+{
+	if (player.body.touching.down)
+	{
+		player.animations.play(direction);
+	}
+
+	else
+	{
+		player.animations.stop();
+		if (travelRight)
+		{
+			player.frame = 18;
+		}
+		else
+		{
+			player.frame = 1;
+		}
+	}
+
+}
+
+function powerUp (player, powerup)
+{
+	this.player = player;
+	this.powerup = powerup;
+}
+
+
+powerUp.prototype.collectPU = function (player, powerup)
+{
+	game.add.tween(powerup.scale).to( { x: 1.2, y: 1.2 }, 200, Phaser.Easing.Linear.None, true);
+	setTimeout(function(){
+		game.add.tween(powerup.scale).to( { x: 0.8, y: 0.8 }, 200, Phaser.Easing.Linear.None, true);	
+	},200);
+}
+
+</script>
+
+</body>
+</html>
